@@ -1,14 +1,4 @@
-mod collector;
-mod gpu;
-mod process;
-mod sys_info;
-
 use tauri::Manager;
-
-#[tauri::command]
-fn set_process_refresh_interval(ms: u64) {
-    collector::set_refresh_interval_ms(ms);
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -29,22 +19,9 @@ pub fn run() {
         ))
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![
-            process::kill_process,
-            process::kill_process_tree,
-            process::kill_process_elevated,
-            process::get_process_icon,
-            set_process_refresh_interval,
-        ])
+        .invoke_handler(tauri::generate_handler![])
 
         .setup(|app| {
-            // Try to gain SeDebugPrivilege so we can terminate processes owned
-            // by other users (effective when the app runs elevated).
-            process::enable_debug_privilege();
-
-            let handle = app.handle().clone();
-            collector::start_collector(&handle);
-
             // Build tray menu
             use tauri::{
                 image::Image,
